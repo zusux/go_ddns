@@ -20,6 +20,7 @@ import (
 )
 type Lists []string
 var (
+	ipServer IpServer
 	AccessKeyId = ""
 	AccessKeySecret = ""
 	BaseUrl = "http://alidns.aliyuncs.com/?"
@@ -31,6 +32,9 @@ var (
 type Appkey struct{
 	AccessKeyId string `ini:"AccessKeyId"`
 	AccessKeySecret string `ini:"AccessKeySecret"`
+}
+type IpServer struct{
+	Url string `ini:"url"`
 }
 type Domain struct{
 	Name string `ini:"name"`
@@ -81,6 +85,10 @@ func LoadIni()  {
 	AccessKeyId = AppkeyStruct.AccessKeyId
 	AccessKeySecret = AppkeyStruct.AccessKeySecret
 
+    err = cfg.Section("ipserver").MapTo(&ipServer)
+	if err != nil{
+		panic(err)
+	}
 
 	domainStruct := Domain{}
 	err = cfg.Section("domain").MapTo(&domainStruct)
@@ -376,8 +384,8 @@ func HttpGet(url string) (string,error){
 
 //获取当前ip
 func GetCurrentIp() string {
-	url := "http://icanhazip.com/"
-	ip,err := HttpGet(url)
+
+	ip,err := HttpGet(ipServer.Url)
 	if err != nil{
 		fmt.Println(err)
 		return ""
